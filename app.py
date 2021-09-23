@@ -45,9 +45,8 @@ samples_control = beta.rvs(alpha_control, beta_control, size=1_000_000)
 probability_uplift = np.mean(samples_test > samples_control) * 100
 samples_uplift = (samples_test - samples_control)
 
-x = np.arange(-1, 1.025, 0.025)
+x = np.arange(-1.0, 1.05, 0.025)
 y, _ = np.histogram(samples_uplift, bins=x, density=True)
-
 source = pd.DataFrame({"x": x[:-1], "y": y})
 
 title = f"Uplift of Test over Control ({probability_uplift:.2f}%)"
