@@ -42,7 +42,7 @@ st.write(alt.Chart(source, width=700, height=400).mark_area(opacity=0.75).encode
 
 samples_test = beta.rvs(alpha_test, beta_test, size=1_000_000)
 samples_control = beta.rvs(alpha_control, beta_control, size=1_000_000)
-probability_uplift = np.mean(samples_test > samples_control)
+probability_uplift = np.mean(samples_test > samples_control) * 100
 samples_uplift = (samples_test - samples_control)
 
 x = np.arange(-1, 1.025, 0.025)
@@ -50,7 +50,7 @@ y, _ = np.histogram(samples_uplift, bins=x, density=True)
 
 source = pd.DataFrame({"x": x[:-1], "y": y})
 
-title = f"Uplift of Test over Control {probability_uplift:.2f}"
+title = f"Uplift of Test over Control ({probability_uplift:.2f}%)"
 st.write(alt.Chart(source, title=title, width=620, height=300).mark_bar(opacity=0.75).encode(
     x="x",
     y=alt.Y("y", title="Probability Density Function"),
