@@ -56,6 +56,6 @@ st.write(alt.Chart(source, title=title, width=620, height=300).mark_bar(opacity=
     y=alt.Y("y", title="Probability Density Function"),
     color=alt.condition(alt.datum.x < 0, alt.value("#d62728"), alt.value("#2ca02c")),
 ) + alt.Chart(pd.DataFrame({"x": [0]}), title=title, width=620, height=300).mark_rule(size=2).encode(
-    x="x",
+    x=alt.X("x", title=""),
     color=alt.value("#000000"),
 ))
