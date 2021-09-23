@@ -45,7 +45,7 @@ samples_control = beta.rvs(alpha_control, beta_control, size=1_000_000)
 probability_uplift = np.mean(samples_test > samples_control)
 samples_uplift = (samples_test - samples_control)
 
-x = np.arange(-1.2, 1.2, 0.025)
+x = np.arange(-1, 1.025, 0.025)
 y, _ = np.histogram(samples_uplift, bins=x, density=True)
 
 source = pd.DataFrame({"x": x[:-1], "y": y})
