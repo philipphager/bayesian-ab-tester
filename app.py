@@ -115,7 +115,7 @@ credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta
                                                                 credibility)
 risk_control, risk_test = get_risk(alpha_test, beta_test, alpha_control, beta_control, users)
 
-st.markdown(f"Probability of Conversion improving in Test: `{test_probability:.2f}%`")
+st.markdown(f"Probability of conversions improving in Test: `{test_probability:.2f}%`")
 st.markdown(f"{credibility}% credibility interval: `[{credibility_lower:.2f}%, {credibility_upper:.2f}%]`")
 st.markdown(f"Risk of choosing Control is loosing `{risk_control}` conversions per `{users}` users")
 st.markdown(f"Risk of choosing Test is loosing `{risk_test}` conversions per `{users}` users")
