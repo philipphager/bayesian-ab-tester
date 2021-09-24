@@ -31,7 +31,6 @@ def plot_uplift(alpha_test, beta_test, alpha_control, beta_control, samples=1_00
     samples_test = beta.rvs(alpha_test, beta_test, size=samples)
     samples_control = beta.rvs(alpha_control, beta_control, size=samples)
     samples_uplift = (samples_test - samples_control) / samples_control
-    probability_uplift = 0
 
     # Compute PDF of samples
     x = np.arange(-1.0, 1.05, 0.025)
