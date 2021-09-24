@@ -16,9 +16,10 @@ def plot_prior(prior_alpha, prior_beta):
         "y": y,
     })
 
-    return alt.Chart(source, width=275, height=200).mark_area(opacity=0.75).encode(
+    title = "Prior Conversion Rate"
+    return alt.Chart(source, title=title, width=630, height=300).mark_area(opacity=0.75).encode(
         x=alt.X("x", title=""),
-        y=alt.Y("y", title="PDF"),
+        y=alt.Y("y", title="Probability Density Function"),
     ).interactive(bind_y=False)
 
 
@@ -34,8 +35,9 @@ def plot_posteriors(alpha_test, beta_test, alpha_control, beta_control):
     })
 
     source = source.melt(id_vars="x", var_name="group", value_name="y")
+    title = "Posterior Conversion Rates"
 
-    return alt.Chart(source, width=700, height=300).mark_area(opacity=0.75).encode(
+    return alt.Chart(source, title=title, width=700, height=300).mark_area(opacity=0.75).encode(
         x=alt.X("x", title=""),
         y=alt.Y("y", title="Probability Density Function"),
         color="group"
@@ -53,7 +55,7 @@ def plot_uplift(alpha_test, beta_test, alpha_control, beta_control, samples=1_00
     source = pd.DataFrame({"x": x[:-1], "y": y})
 
     title = ""
-    return alt.Chart(source, title=title, width=620, height=300).mark_bar(opacity=0.75).encode(
+    return alt.Chart(source, title=title, width=630, height=300).mark_bar(opacity=0.75).encode(
         x="x",
         y=alt.Y("y", title="Probability Density Function"),
         color=alt.condition(alt.datum.x < 0, alt.value("#d62728"), alt.value("#2ca02c")),
@@ -95,24 +97,22 @@ def get_risk(alpha_test, beta_test, alpha_control, beta_control, users):
 
 
 # Sidebar
-prior_success = st.sidebar.number_input("Prior - Success", min_value=1, value=5)
-prior_total = st.sidebar.number_input("Prior - Total", min_value=1, value=10)
-prior_failure = prior_total - prior_success
-st.sidebar.write(plot_prior(prior_success, prior_failure))
-
-credibility = st.sidebar.number_input("Credibility Interval", min_value=1, max_value=100, value=95)
+prior_success = st.sidebar.number_input("Prior - Alpha", min_value=1, value=10)
+prior_failure = st.sidebar.number_input("Prior - Beta", min_value=1, value=10)
+st.sidebar.markdown("___")
 
 # AB test results
-column_1, column_2 = st.columns(2)
-test_success = column_1.number_input("Test Success", min_value=1, value=51)
-test_total = column_2.number_input("Test Total", min_value=1, value=100)
+test_success = st.sidebar.number_input("Test Success", min_value=1, value=51)
+test_total = st.sidebar.number_input("Test Total", min_value=1, value=100)
 test_failure = test_total - test_success
 
-control_success = column_1.number_input("Control Success", min_value=1, value=49)
-control_total = column_2.number_input("Control Total", min_value=1, value=100)
+control_success = st.sidebar.number_input("Control Success", min_value=1, value=49)
+control_total = st.sidebar.number_input("Control Total", min_value=1, value=100)
 control_failure = control_total - control_success
 
-st.markdown("___")
+st.sidebar.markdown("___")
+
+credibility = st.sidebar.number_input("Credibility Interval", min_value=1, max_value=100, value=95)
 
 if control_success > control_total or test_success > test_total:
     st.error("The number of successful users must be less or equal to your total users")
@@ -124,6 +124,7 @@ beta_test = prior_failure + test_failure
 alpha_control = prior_success + control_success
 beta_control = prior_failure + control_failure
 
+st.write(plot_prior(prior_success, prior_failure))
 st.write(plot_posteriors(alpha_test, beta_test, alpha_control, beta_control))
 st.write(plot_uplift(alpha_test, beta_test, alpha_control, beta_control))
 
