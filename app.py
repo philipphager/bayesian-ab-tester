@@ -20,7 +20,7 @@ def plot_posteriors(alpha_test, beta_test, alpha_control, beta_control):
 
     source = source.melt(id_vars="x", var_name="group", value_name="y")
 
-    return alt.Chart(source, width=700, height=400).mark_area(opacity=0.75).encode(
+    return alt.Chart(source, width=700, height=300).mark_area(opacity=0.75).encode(
         x=alt.X("x", title=""),
         y=alt.Y("y", title="Probability Density Function"),
         color="group"
@@ -94,6 +94,8 @@ control_success = column_1.number_input("Control Success", min_value=1, value=49
 control_total = column_2.number_input("Control Total", min_value=1, value=100)
 control_failure = control_total - control_success
 
+st.markdown("___")
+
 # Compute posterior distributions
 alpha_test = prior_success + test_success
 beta_test = prior_failure + test_failure
@@ -105,7 +107,8 @@ st.write(plot_uplift(alpha_test, beta_test, alpha_control, beta_control))
 
 users = 100
 test_probability = get_test_probability(alpha_test, beta_test, alpha_control, beta_control)
-credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control, credibility)
+credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control,
+                                                                credibility)
 risk_control, risk_test = get_risk(alpha_test, beta_test, alpha_control, beta_control, users)
 
 st.markdown(f"Probability of Conversion improving in Test: `{test_probability:.2f}%`")
