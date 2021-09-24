@@ -7,6 +7,21 @@ from scipy.stats import beta, norm
 from utils import log_beta_mean, var_beta_mean, beta_gq
 
 
+def plot_prior(prior_alpha, prior_beta):
+    x = np.linspace(0, 1, 10_000)
+    y = beta.pdf(x, prior_alpha, prior_beta)
+
+    source = pd.DataFrame({
+        "x": x,
+        "y": y,
+    })
+
+    return alt.Chart(source, width=275, height=200).mark_area(opacity=0.75).encode(
+        x=alt.X("x", title=""),
+        y=alt.Y("y", title="PDF"),
+    ).interactive(bind_y=False)
+
+
 def plot_posteriors(alpha_test, beta_test, alpha_control, beta_control):
     x = np.linspace(0, 1, 10_000)
     y_test = beta.pdf(x, alpha_test, beta_test)
@@ -80,8 +95,11 @@ def get_risk(alpha_test, beta_test, alpha_control, beta_control, users):
 
 
 # Sidebar
-prior_success = st.sidebar.number_input("Beta Prior - Alpha", min_value=1, value=10)
-prior_failure = st.sidebar.number_input("Beta Prior - Beta", min_value=1, value=10)
+prior_success = st.sidebar.number_input("Prior - Success", min_value=1, value=5)
+prior_total = st.sidebar.number_input("Prior - Total", min_value=1, value=10)
+prior_failure = prior_total - prior_success
+st.sidebar.write(plot_prior(prior_success, prior_failure))
+
 credibility = st.sidebar.number_input("Credibility Interval", min_value=1, max_value=100, value=95)
 
 # AB test results
