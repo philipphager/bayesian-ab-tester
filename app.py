@@ -24,7 +24,7 @@ def plot_posteriors(alpha_test, beta_test, alpha_control, beta_control):
         x=alt.X("x", title=""),
         y=alt.Y("y", title="Probability Density Function"),
         color="group"
-    )
+    ).interactive(bind_y=False)
 
 
 def plot_uplift(alpha_test, beta_test, alpha_control, beta_control, samples=1_000_000):
@@ -45,7 +45,7 @@ def plot_uplift(alpha_test, beta_test, alpha_control, beta_control, samples=1_00
     ) + alt.Chart(pd.DataFrame({"x": [0]})).mark_rule(size=2).encode(
         x=alt.X("x", title=""),
         color=alt.value("#000000"),
-    )
+    ).interactive(bind_y=False)
 
 
 def get_test_probability(alpha_test, beta_test, alpha_control, beta_control):
