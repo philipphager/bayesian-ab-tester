@@ -14,8 +14,8 @@ def plot_posteriors(alpha_test, beta_test, alpha_control, beta_control):
 
     source = pd.DataFrame({
         "x": x,
-        "y_test": y_test,
-        "y_control": y_control
+        "test": y_test,
+        "control": y_control
     })
 
     source = source.melt(id_vars="x", var_name="group", value_name="y")
