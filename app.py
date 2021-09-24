@@ -96,6 +96,10 @@ control_failure = control_total - control_success
 
 st.markdown("___")
 
+if control_success > control_total or test_success > test_total:
+    st.error("The number of successful users must be less or equal to your total users")
+    st.stop()
+
 # Compute posterior distributions
 alpha_test = prior_success + test_success
 beta_test = prior_failure + test_failure
