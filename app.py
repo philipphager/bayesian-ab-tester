@@ -81,8 +81,8 @@ def get_risk(alpha_test, beta_test, alpha_control, beta_control, users):
 
 
 # Sidebar
-prior_success = st.sidebar.number_input("Beta Prior (Alpha)", min_value=1, value=10)
-prior_failure = st.sidebar.number_input("Beta Prior (Beta)", min_value=1, value=10)
+prior_success = st.sidebar.number_input("Beta Prior - Alpha", min_value=1, value=10)
+prior_failure = st.sidebar.number_input("Beta Prior - Beta", min_value=1, value=10)
 credibility = st.sidebar.number_input("Credibility Interval", min_value=1, max_value=100, value=95)
 
 # AB test results
@@ -106,10 +106,10 @@ st.write(plot_uplift(alpha_test, beta_test, alpha_control, beta_control))
 
 users = 100
 test_probability = get_test_probability(alpha_test, beta_test, alpha_control, beta_control)
-credibility_interval = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control, credibility)
+credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control, credibility)
 risk_control, risk_test = get_risk(alpha_test, beta_test, alpha_control, beta_control, users)
 
 st.markdown(f"Probability of Conversion improving in Test: `{test_probability:.2f}%`")
-st.markdown(f"{credibility}% credibility interval: `[{credibility_interval[0]:.2f}%, {credibility_interval[1]:.2f}%]`")
+st.markdown(f"{credibility}% credibility interval: `[{credibility_lower:.2f}%, {credibility_upper:.2f}%]`")
 st.markdown(f"Risk of choosing Control is loosing `{risk_control}` conversions per `{users}` users")
 st.markdown(f"Risk of choosing Test is loosing `{risk_test}` conversions per `{users}` users")
