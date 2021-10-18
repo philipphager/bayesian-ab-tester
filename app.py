@@ -122,11 +122,11 @@ if file is not None:
     test_df = df[df["group"] != "control"]
 
     if len(control_df) != len(test_df):
-        st.error("""
+        st.warning("""
         Number of control and test groups do not match.
         Ensure to have two rows per metric, one with a group name 'control'.
+        Ignoring metrics without two rows...
         """)
-        st.stop()
 
     df = control_df.merge(test_df, on=["metric"], suffixes=("_control", "_test"))
     df = df.sort_values("total_test", ascending=False)
