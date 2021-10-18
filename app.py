@@ -54,7 +54,7 @@ def plot_uplift(alpha_test, beta_test, alpha_control, beta_control, samples=1_00
     y, _ = np.histogram(samples_uplift, bins=x, density=True)
     source = pd.DataFrame({"x": x[:-1], "y": y})
 
-    title = "Uplift"
+    title = ""
     return alt.Chart(source, title=title, width=630, height=300).mark_bar(opacity=0.75).encode(
         x="x",
         y=alt.Y("y", title="Probability Density Function"),
@@ -132,6 +132,9 @@ users = 100
 test_probability = get_test_probability(alpha_test, beta_test, alpha_control, beta_control)
 credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control,
                                                                 credibility)
+risk_control, risk_test = get_risk(alpha_test, beta_test, alpha_control, beta_control, users)
 
 st.markdown(f"Probability of conversions improving in Test: `{test_probability:.2f}%`")
 st.markdown(f"{credibility}% credibility interval: `[{credibility_lower:.2f}%, {credibility_upper:.2f}%]`")
+st.markdown(f"Risk of choosing Control is loosing `{risk_control}` conversions per `{users}` users")
+st.markdown(f"Risk of choosing Test is loosing `{risk_test}` conversions per `{users}` users")
