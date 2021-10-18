@@ -108,7 +108,7 @@ if not is_local_prior:
 credibility = st.sidebar.number_input("Credibility Interval", min_value=1, max_value=100, value=95)
 
 columns = ["metric", "group", "success", "total"]
-file = st.file_uploader("Upload a .CSV file with columns:" + ", ".join(columns))
+file = st.file_uploader("Upload a .CSV file with columns: " + ", ".join(columns))
 
 if file is not None:
     df = pd.read_csv(file)
