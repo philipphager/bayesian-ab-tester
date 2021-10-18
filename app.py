@@ -97,44 +97,78 @@ def get_risk(alpha_test, beta_test, alpha_control, beta_control, users):
 
 
 # Sidebar
-prior_success = st.sidebar.number_input("Prior - Alpha", min_value=1, value=10)
-prior_failure = st.sidebar.number_input("Prior - Beta", min_value=1, value=10)
+is_local_prior = st.sidebar.checkbox("Set prior per metric", False)
 st.sidebar.markdown("___")
 
-# AB test results
-test_success = st.sidebar.number_input("Test Success", min_value=1, value=51)
-test_total = st.sidebar.number_input("Test Total", min_value=1, value=100)
-test_failure = test_total - test_success
-
-control_success = st.sidebar.number_input("Control Success", min_value=1, value=49)
-control_total = st.sidebar.number_input("Control Total", min_value=1, value=100)
-control_failure = control_total - control_success
-
-st.sidebar.markdown("___")
+if not is_local_prior:
+    prior_success = st.sidebar.number_input("Global Prior - Alpha", min_value=1, value=10)
+    prior_failure = st.sidebar.number_input("Global Prior - Beta", min_value=1, value=10)
+    st.sidebar.markdown("___")
 
 credibility = st.sidebar.number_input("Credibility Interval", min_value=1, max_value=100, value=95)
 
-if control_success > control_total or test_success > test_total:
-    st.error("The number of successful users must be less or equal to your total users")
+columns = ["metric", "group", "success", "total"]
+file = st.file_uploader("Upload a .CSV file with columns:" + ", ".join(columns))
+
+if file is not None:
+    df = pd.read_csv(file)
+
+    for column in columns:
+        if column not in df.columns:
+            st.error(f"CSV file misses column: {column}")
+            st.stop()
+
+    control_df = df[df["group"] == "control"]
+    test_df = df[df["group"] != "control"]
+
+    if len(control_df) != len(test_df):
+        st.error("""
+        Number of control and test groups do not match.
+        Ensure to have two rows per metric, one with a group name 'control'.
+        """)
+        st.stop()
+
+    df = control_df.merge(test_df, on=["metric"], suffixes=("_control", "_test"))
+    df = df.sort_values("total_test", ascending=False)
+else:
     st.stop()
 
-# Compute posterior distributions
-alpha_test = prior_success + test_success
-beta_test = prior_failure + test_failure
-alpha_control = prior_success + control_success
-beta_control = prior_failure + control_failure
+for i, row in df.iterrows():
+    st.subheader(row.metric)
 
-st.write(plot_prior(prior_success, prior_failure))
-st.write(plot_posteriors(alpha_test, beta_test, alpha_control, beta_control))
-st.write(plot_uplift(alpha_test, beta_test, alpha_control, beta_control))
+    if is_local_prior:
+        c1, c2 = st.columns(2)
+        prior_success = c1.number_input("Prior - Alpha", min_value=1, value=10, key=row.metric)
+        prior_failure = c2.number_input("Prior - Beta", min_value=1, value=10, key=row.metric)
+        st.markdown("")
 
-users = 100
-test_probability = get_test_probability(alpha_test, beta_test, alpha_control, beta_control)
-credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control,
-                                                                credibility)
-risk_control, risk_test = get_risk(alpha_test, beta_test, alpha_control, beta_control, users)
+    test_success = row.success_test
+    test_failure = row.total_test - row.success_test
+    control_success = row.success_control
+    control_failure = row.total_control - row.success_control
 
-st.markdown(f"Probability of conversions improving in Test: `{test_probability:.2f}%`")
-st.markdown(f"{credibility}% credibility interval: `[{credibility_lower:.2f}%, {credibility_upper:.2f}%]`")
-st.markdown(f"Risk of choosing Control is loosing `{risk_control}` conversions per `{users}` users")
-st.markdown(f"Risk of choosing Test is loosing `{risk_test}` conversions per `{users}` users")
+    # Compute posterior distributions
+    alpha_test = prior_success + test_success
+    beta_test = prior_failure + test_failure
+    alpha_control = prior_success + control_success
+    beta_control = prior_failure + control_failure
+
+    st.write(plot_prior(prior_success, prior_failure))
+    st.write(plot_posteriors(alpha_test, beta_test, alpha_control, beta_control))
+    st.write(plot_uplift(alpha_test, beta_test, alpha_control, beta_control))
+
+    users = 100
+    test_probability = get_test_probability(alpha_test, beta_test, alpha_control, beta_control)
+    credibility_lower, credibility_upper = get_credibility_interval(alpha_test, beta_test, alpha_control, beta_control,
+                                                                    credibility)
+    risk_control, risk_test = get_risk(alpha_test, beta_test, alpha_control, beta_control, users)
+
+    st.markdown(f"Test Success:`{test_success} / {row.total_test} = {(test_success / row.total_test * 100):.2f}%`")
+    st.markdown(f"Control Success:`{control_success} / {row.total_control} = {(control_success / row.total_control * 100):.2f}%`")
+    st.markdown(f"Probability of conversions improving in Test: `{test_probability:.2f}%`")
+    st.markdown(f"{credibility}% credibility interval: `[{credibility_lower:.2f}%, {credibility_upper:.2f}%]`")
+    st.markdown(f"Risk of choosing Control is loosing `{risk_control}` conversions per `{users}` users")
+    st.markdown(f"Risk of choosing Test is loosing `{risk_test}` conversions per `{users}` users")
+    st.markdown("""
+    ---
+    """)
